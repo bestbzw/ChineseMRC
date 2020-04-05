@@ -512,6 +512,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
             is_training=not evaluate,
             return_dataset="pt",
             threads=args.threads,
+            is_split_doc=args.split_doc,
         )
 
         if args.local_rank in [-1, 0]:
@@ -694,6 +695,7 @@ def main():
         help="Evaluate all checkpoints starting with the same prefix as model_name ending and ending with step number",
     )
     parser.add_argument("--no_cuda", action="store_true", help="Whether not to use CUDA when available")
+    parser.add_argument("--split_doc", action="store_true", help="Whether split the document")
     parser.add_argument(
         "--overwrite_output_dir", action="store_true", help="Overwrite the content of the output directory"
     )
