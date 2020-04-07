@@ -137,9 +137,17 @@ def train(args, train_dataset, model, tokenizer):
         {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
-    scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total
-    )
+   
+    if args.warmup_steps>0:
+        logger.info("*****Linear warmup over %d warmup_steps *****"%args.warmup_steps)
+        scheduler = get_linear_schedule_with_warmup(
+            optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total
+        )
+    else:
+        logger.info("*****Linear warmup over %.1f%% of training.*****"%(args.warmup_proportion*100))
+        scheduler = get_linear_schedule_with_warmup(
+            optimizer, num_warmup_steps=int(args.warmup_proportion*t_total), num_training_steps=t_total
+        )
 
     # Check if saved optimizer or scheduler states exist
     if os.path.isfile(os.path.join(args.model_name_or_path, "optimizer.pt")) and os.path.isfile(
@@ -671,6 +679,10 @@ def main():
         help="If > 0: set total number of training steps to perform. Override num_train_epochs.",
     )
     parser.add_argument("--warmup_steps", default=0, type=int, help="Linear warmup over warmup_steps.")
+    parser.add_argument("--warmup_proportion", default=0.1, type=float, 
+        help="Proportion of training to perform linear learning rate warmup for. "
+        "E.g., 0.1 = 10% of training.",
+    )
     parser.add_argument(
         "--n_best_size",
         default=20,
