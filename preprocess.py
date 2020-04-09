@@ -104,9 +104,9 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
         end_position = example.end_position
 
         # If the answer cannot be found in the text, then skip this example.
-        actual_text = "".join(example.doc_tokens[start_position : (end_position + 1)])
-        #cleaned_answer_text = " ".join(whitespace_tokenize(example.answer_text))
-        cleaned_answer_text = "".join(list(example.answer_text))
+        actual_text = " ".join(example.doc_tokens[start_position : (end_position + 1)])
+        cleaned_answer_text = " ".join(whitespace_tokenize(example.answer_text))
+        #cleaned_answer_text = " ".join(list(example.answer_text))
         if actual_text.find(cleaned_answer_text) == -1:
             logger.warning("Could not find answer: '%s' vs. '%s'", actual_text, cleaned_answer_text)
             return []
@@ -179,8 +179,8 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
         else:
             non_padded_ids = encoded_dict["input_ids"]
 
-        tokens = tokenizer.convert_ids_to_tokens(non_padded_ids)
-
+        #tokens = tokenizer.convert_ids_to_tokens(non_padded_ids)
+        tokens = ["CLS"]+truncated_query + ["SEP"] + all_doc_tokens[len(spans) * doc_stride:min(paragraph_len + len(spans) * doc_stride,len(all_doc_tokens))] + ["SEP"]
         token_to_orig_map = {}
         for i in range(paragraph_len):
             index = len(truncated_query) + sequence_added_tokens + i if tokenizer.padding_side == "right" else i
@@ -254,7 +254,6 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
 
                 start_position = tok_start_position - doc_start + doc_offset
                 end_position = tok_end_position - doc_start + doc_offset
-
         features.append(
             SquadFeatures(
                 span["input_ids"],

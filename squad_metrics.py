@@ -285,7 +285,7 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     tokenizer = BasicTokenizer(do_lower_case=do_lower_case)
 
     tok_text = " ".join(tokenizer.tokenize(orig_text))
-
+    
     start_position = tok_text.find(pred_text)
     if start_position == -1:
         if verbose_logging:
@@ -481,13 +481,13 @@ def compute_predictions_logits(
                 orig_doc_end = feature.token_to_orig_map[pred.end_index]
                 orig_tokens = example.doc_tokens[orig_doc_start : (orig_doc_end + 1)]
 
-                tok_text = tokenizer.convert_tokens_to_string(tok_tokens)
-
-                # tok_text = " ".join(tok_tokens)
+                #tok_text = tokenizer.convert_tokens_to_string(tok_tokens)
+                
+                tok_text = " ".join(tok_tokens)
                 #
                 # # De-tokenize WordPieces that have been split off.
-                # tok_text = tok_text.replace(" ##", "")
-                # tok_text = tok_text.replace("##", "")
+                tok_text = tok_text.replace(" ##", "")
+                tok_text = tok_text.replace("##", "")
 
                 # Clean whitespace
                 tok_text = tok_text.strip()
@@ -555,14 +555,14 @@ def compute_predictions_logits(
         all_nbest_json[example.qas_id] = nbest_json
 
     with open(output_prediction_file, "w") as writer:
-        writer.write(json.dumps(all_predictions, indent=4) + "\n")
+        writer.write(json.dumps(all_predictions, indent=4,ensure_ascii=False) + "\n")
 
     with open(output_nbest_file, "w") as writer:
-        writer.write(json.dumps(all_nbest_json, indent=4) + "\n")
+        writer.write(json.dumps(all_nbest_json, indent=4,ensure_ascii=False) + "\n")
 
     if version_2_with_negative:
         with open(output_null_log_odds_file, "w") as writer:
-            writer.write(json.dumps(scores_diff_json, indent=4) + "\n")
+            writer.write(json.dumps(scores_diff_json, indent=4,ensure_ascii=False) + "\n")
 
     return all_predictions
 

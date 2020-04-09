@@ -45,7 +45,7 @@ from transformers import (
     AlbertTokenizer,
     BertConfig,
     BertForQuestionAnswering,
-    BertTokenizer,
+#    BertTokenizer,
     CamembertConfig,
     CamembertForQuestionAnswering,
     CamembertTokenizer,
@@ -71,7 +71,7 @@ from squad_metrics import (
 #from transformers.data.processors.squad import SquadResult, SquadV1Processor, SquadV2Processor
 #from transformers.data.processors.squad import SquadResult
 from preprocess import Lic2020Processor,SquadResult,lic2020_convert_examples_to_features
-
+from tokenization_bert import BertTokenizer
 try:
     from torch.utils.tensorboard import SummaryWriter
 except ImportError:
@@ -374,7 +374,6 @@ def evaluate(args, model, tokenizer, prefix=""):
             unique_id = int(eval_feature.unique_id)
 
             output = [to_list(output[i]) for output in outputs]
-
             # Some models (XLNet, XLM) use 5 arguments for their predictions, while the other "simpler"
             # models only use two.
             if len(output) >= 5:
