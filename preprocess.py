@@ -159,8 +159,7 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
             pad_to_max_length=True,
             stride=max_seq_length - doc_stride - len(truncated_query) - sequence_pair_added_tokens,
             truncation_strategy="only_second" if tokenizer.padding_side == "right" else "only_first",
-        )
-        
+            )
 
         paragraph_len = min(
             len(all_doc_tokens) - len(spans) * doc_stride,
@@ -321,6 +320,7 @@ def lic2020_convert_examples_to_features(
     # Defining helper methods
     features = []
     threads = min(threads, cpu_count())
+
     with Pool(threads, initializer=lic2020_convert_example_to_features_init, initargs=(tokenizer,)) as p:
         annotate_ = partial(
             lic2020_convert_example_to_features,
@@ -549,9 +549,13 @@ class Lic2020Processor(DataProcessor):
             title = entry["title"]
             for paragraph in entry["paragraphs"]:
                 context_text = paragraph["context"]
+                if context_text.strip() == "":
+                    continue
                 for qa in paragraph["qas"]:
                     qas_id = qa["id"]
                     question_text = qa["question"]
+                    if question_text.strip() == "":
+                        continue
                     start_position_character = None
                     answer_text = None
                     answers = []
