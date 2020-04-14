@@ -194,7 +194,7 @@ def train(args, train_dataset, model, tokenizer):
     epochs_trained = 0
     steps_trained_in_current_epoch = 0
     # Check if continuing training from a checkpoint
-    if os.path.exists(args.model_name_or_path):
+    if os.path.exists(args.model_name_or_path) and args.inherit_global_step:
         try:
             # set global_step to gobal_step of last saved checkpoint from model path
             checkpoint_suffix = args.model_name_or_path.split("-")[-1].split("/")[0]
@@ -208,6 +208,9 @@ def train(args, train_dataset, model, tokenizer):
             logger.info("  Will skip the first %d steps in the first epoch", steps_trained_in_current_epoch)
         except ValueError:
             logger.info("  Starting fine-tuning.")
+    else:
+         logger.info("  Will not inherit the global_step, we set it to 1")
+         logger.info("  Starting fine-tuning.")
 
     tr_loss, logging_loss = 0.0, 0.0
     model.zero_grad()
@@ -465,7 +468,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
             input_dir,
             "cached_{}_{}_{}".format(
             args.predict_file.split(".")[0] if evaluate else args.train_file.split(".")[0],
-            str(args.model_name),
+            str(args.model_name) if args.model_name else list(filter(None, args.model_name_or_path.split("/"))).pop(),
             str(args.max_seq_length),),
         )
     else:
@@ -473,7 +476,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
             input_dir,
             "cached_{}_{}_{}_{}".format(
             args.predict_file.split(".")[0] if evaluate else args.train_file.split(".")[0],
-            str(args.model_name),
+            str(args.model_name) if args.model_name else list(filter(None, args.model_name_or_path.split("/"))).pop(),
             str(args.max_seq_length),
             "without_split_doc"),
         )
@@ -572,8 +575,7 @@ def main():
         "--model_name",
         default=None,
         type=str,
-        required=True,
-        help="Path to pre-trained model or shortcut name selected in the list: " + ", ".join(ALL_MODELS),
+        help="The model name of the pre-trained model",
     )
     parser.add_argument(
         "--output_dir",
@@ -661,7 +663,9 @@ def main():
     parser.add_argument(
         "--do_lower_case", action="store_true", help="Set this flag if you are using an uncased model."
     )
-
+    parser.add_argument(
+        "--inherit_global_step", action="store_true", help="Set this flag if you are using an uncased model."
+    )
     parser.add_argument("--per_gpu_train_batch_size", default=8, type=int, help="Batch size per GPU/CPU for training.")
     parser.add_argument(
         "--per_gpu_eval_batch_size", default=8, type=int, help="Batch size per GPU/CPU for evaluation."
