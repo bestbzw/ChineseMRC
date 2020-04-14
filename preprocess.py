@@ -1,3 +1,5 @@
+#!/data/anaconda3/bin/python
+# -*- coding: utf-8 -*-
 """
 由squad的预处理代码改编而来
 Ziwei Bai

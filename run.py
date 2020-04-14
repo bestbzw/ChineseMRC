@@ -1,3 +1,5 @@
+#!/data/anaconda3/bin/python
+# -*- coding: utf-8 -*-
 """
     由run_squad.py更改而来
     适用于Lic 2020 MRC任务
@@ -6,7 +8,6 @@
     bestbzw@bupt.edu.cn
 """
 
-# coding=utf-8
 # Copyright 2018 The Google AI Language Team Authors and The HuggingFace Inc. team.
 # Copyright (c) 2018, NVIDIA CORPORATION.  All rights reserved.
 #
@@ -464,7 +465,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
             input_dir,
             "cached_{}_{}_{}".format(
             args.predict_file.split(".")[0] if evaluate else args.train_file.split(".")[0],
-            list(filter(None, args.model_name_or_path.split("/"))).pop(),
+            str(args.model_name),
             str(args.max_seq_length),),
         )
     else:
@@ -472,7 +473,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
             input_dir,
             "cached_{}_{}_{}_{}".format(
             args.predict_file.split(".")[0] if evaluate else args.train_file.split(".")[0],
-            list(filter(None, args.model_name_or_path.split("/"))).pop(),
+            str(args.model_name),
             str(args.max_seq_length),
             "without_split_doc"),
         )
@@ -562,6 +563,13 @@ def main():
     )
     parser.add_argument(
         "--model_name_or_path",
+        default=None,
+        type=str,
+        required=True,
+        help="Path to pre-trained model or shortcut name selected in the list: " + ", ".join(ALL_MODELS),
+    )
+    parser.add_argument(
+        "--model_name",
         default=None,
         type=str,
         required=True,
