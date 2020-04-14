@@ -1,3 +1,5 @@
+#!/data/anaconda3/bin/python
+# -*- coding: utf-8 -*-
 """ Very heavily inspired by the official evaluation script for SQuAD version 2.0 which was
 modified by XLNet authors to update `find_best_threshold` scripts for SQuAD V2.0
 
@@ -555,14 +557,14 @@ def compute_predictions_logits(
         all_nbest_json[example.qas_id] = nbest_json
 
     with open(output_prediction_file, "w") as writer:
-        writer.write(json.dumps(all_predictions, indent=4,ensure_ascii=False) + "\n")
+        writer.write(json.dumps(all_predictions, indent=4) + "\n")
 
     with open(output_nbest_file, "w") as writer:
-        writer.write(json.dumps(all_nbest_json, indent=4,ensure_ascii=False) + "\n")
+        writer.write(json.dumps(all_nbest_json, indent=4) + "\n")
 
     if version_2_with_negative:
         with open(output_null_log_odds_file, "w") as writer:
-            writer.write(json.dumps(scores_diff_json, indent=4,ensure_ascii=False) + "\n")
+            writer.write(json.dumps(scores_diff_json, indent=4) + "\n")
 
     return all_predictions
 
