@@ -308,9 +308,9 @@ def train(args, train_dataset, model, tokenizer):
                     torch.save(args, os.path.join(output_dir, "training_args.bin"))
                     logger.info("Saving model checkpoint to %s", output_dir)
 
-                    torch.save(optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
-                    torch.save(scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
-                    logger.info("Saving optimizer and scheduler states to %s", output_dir)
+                    #torch.save(optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
+                    #torch.save(scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
+                    #logger.info("Saving optimizer and scheduler states to %s", output_dir)
 
         if args.max_steps > 0 and global_step > args.max_steps:
             train_iterator.close()
