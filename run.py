@@ -466,7 +466,8 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
     if args.split_doc:
         cached_features_file = os.path.join(
             input_dir,
-            "cached_{}_{}_{}".format(
+            "cached_{}_{}_{}_{}".format(
+            "evaluate"  if evaluate else "train",
             args.predict_file.split(".")[0] if evaluate else args.train_file.split(".")[0],
             str(args.model_name) if args.model_name else list(filter(None, args.model_name_or_path.split("/"))).pop(),
             str(args.max_seq_length),),
@@ -474,7 +475,8 @@ def load_and_cache_examples(args, tokenizer, evaluate=False, output_examples=Fal
     else:
         cached_features_file = os.path.join(
             input_dir,
-            "cached_{}_{}_{}_{}".format(
+            "cached_{}_{}_{}_{}_{}".format(
+            "evaluate"  if evaluate else "train",
             args.predict_file.split(".")[0] if evaluate else args.train_file.split(".")[0],
             str(args.model_name) if args.model_name else list(filter(None, args.model_name_or_path.split("/"))).pop(),
             str(args.max_seq_length),
