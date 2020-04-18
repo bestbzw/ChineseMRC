@@ -332,7 +332,7 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
         return orig_text
 
     output_text = orig_text[orig_start_position : (orig_end_position + 1)]
-    return output_text
+    return output_text,orig_start_position,orig_end_position + 1
 
 
 def _get_best_indexes(logits, n_best_size):
@@ -385,6 +385,10 @@ def compute_predictions_logits(
     null_score_diff_threshold,
     tokenizer,
 ):
+    """
+    For bert/Roberta/albert
+    """
+
     """Write final predictions to the json file and log-odds of null if needed."""
     logger.info("Writing predictions to: %s" % (output_prediction_file))
     logger.info("Writing nbest to: %s" % (output_nbest_file))
@@ -468,7 +472,7 @@ def compute_predictions_logits(
         prelim_predictions = sorted(prelim_predictions, key=lambda x: (x.start_logit + x.end_logit), reverse=True)
 
         _NbestPrediction = collections.namedtuple(  # pylint: disable=invalid-name
-            "NbestPrediction", ["text", "start_logit", "end_logit"]
+            "NbestPrediction", ["text", "start_logit", "end_logit","start_index", "end_index"]
         )
 
         seen_predictions = {}
@@ -496,7 +500,7 @@ def compute_predictions_logits(
                 tok_text = " ".join(tok_text.split())
                 orig_text = " ".join(orig_tokens)
 
-                final_text = get_final_text(tok_text, orig_text, do_lower_case, verbose_logging)
+                final_text,start_index,end_index = get_final_text(tok_text, orig_text, do_lower_case, verbose_logging)
                 if final_text in seen_predictions:
                     continue
 
@@ -505,7 +509,7 @@ def compute_predictions_logits(
                 final_text = ""
                 seen_predictions[final_text] = True
 
-            nbest.append(_NbestPrediction(text=final_text, start_logit=pred.start_logit, end_logit=pred.end_logit))
+            nbest.append(_NbestPrediction(text=final_text, start_logit=pred.start_logit, end_logit=pred.end_logit,start_index = start_index,end_index = end_index))
         # if we didn't include the empty option in the n-best, include it
         if version_2_with_negative:
             if "" not in seen_predictions:
@@ -540,6 +544,9 @@ def compute_predictions_logits(
             output["probability"] = probs[i]
             output["start_logit"] = entry.start_logit
             output["end_logit"] = entry.end_logit
+            output["start_index"] = entry.start_index
+            output["end_index"] = entry.end_index
+            
             nbest_json.append(output)
 
         assert len(nbest_json) >= 1
@@ -594,7 +601,7 @@ def compute_predictions_log_probs(
     )
 
     _NbestPrediction = collections.namedtuple(  # pylint: disable=invalid-name
-        "NbestPrediction", ["text", "start_log_prob", "end_log_prob"]
+        "NbestPrediction", ["text", "start_log_prob", "end_log_prob","start_index", "end_index"]
     )
 
     logger.info("Writing predictions to: %s", output_prediction_file)
@@ -701,7 +708,7 @@ def compute_predictions_log_probs(
             else:
                 do_lower_case = tokenizer.do_lowercase_and_remove_accent
 
-            final_text = get_final_text(tok_text, orig_text, do_lower_case, verbose_logging)
+            final_text,start_index,end_index = get_final_text(tok_text, orig_text, do_lower_case, verbose_logging)
 
             if final_text in seen_predictions:
                 continue
@@ -709,7 +716,7 @@ def compute_predictions_log_probs(
             seen_predictions[final_text] = True
 
             nbest.append(
-                _NbestPrediction(text=final_text, start_log_prob=pred.start_log_prob, end_log_prob=pred.end_log_prob)
+                _NbestPrediction(text=final_text, start_log_prob=pred.start_log_prob, end_log_prob=pred.end_log_prob,start_index=start_index,end_index = end_index)
             )
 
         # In very rare edge cases we could have no valid predictions. So we
@@ -733,6 +740,8 @@ def compute_predictions_log_probs(
             output["probability"] = probs[i]
             output["start_log_prob"] = entry.start_log_prob
             output["end_log_prob"] = entry.end_log_prob
+            output["start_index"] = entry.start_index
+            output["end_index"] = entry.end_index
             nbest_json.append(output)
 
         assert len(nbest_json) >= 1
