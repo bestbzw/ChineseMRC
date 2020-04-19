@@ -292,7 +292,7 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     if start_position == -1:
         if verbose_logging:
             logger.info("Unable to find text: '%s' in '%s'" % (pred_text, orig_text))
-        return orig_text
+        return orig_text,0,len(orig_text)
     end_position = start_position + len(pred_text) - 1
 
     (orig_ns_text, orig_ns_to_s_map) = _strip_spaces(orig_text)
@@ -301,7 +301,7 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     if len(orig_ns_text) != len(tok_ns_text):
         if verbose_logging:
             logger.info("Length not equal after stripping spaces: '%s' vs '%s'", orig_ns_text, tok_ns_text)
-        return orig_text
+        return orig_text,0,len(orig_text)
 
     # We then project the characters in `pred_text` back to `orig_text` using
     # the character-to-character alignment.
@@ -318,7 +318,7 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     if orig_start_position is None:
         if verbose_logging:
             logger.info("Couldn't map start position")
-        return orig_text
+        return orig_text,0,len(orig_text)
 
     orig_end_position = None
     if end_position in tok_s_to_ns_map:
@@ -329,7 +329,7 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     if orig_end_position is None:
         if verbose_logging:
             logger.info("Couldn't map end position")
-        return orig_text
+        return orig_text,0,len(orig_text)
 
     output_text = orig_text[orig_start_position : (orig_end_position + 1)]
     return output_text,orig_start_position,orig_end_position + 1
