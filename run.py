@@ -67,6 +67,7 @@ from transformers import (
 from squad_metrics import (
     compute_predictions_log_probs,
     compute_predictions_logits,
+    compute_predictions_logits_and_output_all_logits,
     squad_evaluate,
 )
 #from transformers.data.processors.squad import SquadResult, SquadV1Processor, SquadV2Processor
@@ -408,6 +409,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     # Compute predictions
     output_prediction_file = os.path.join(args.output_dir, "predictions_{}.json".format(prefix))
     output_nbest_file = os.path.join(args.output_dir, "nbest_predictions_{}.json".format(prefix))
+    output_all_logit_file = os.path.join(args.output_dir, "logit_predictions_{}.json".format(prefix))
 
     if args.version_2_with_negative:
         output_null_log_odds_file = os.path.join(args.output_dir, "null_odds_{}.json".format(prefix))
@@ -435,21 +437,40 @@ def evaluate(args, model, tokenizer, prefix=""):
             args.verbose_logging,
         )
     else:
-        predictions = compute_predictions_logits(
-            examples,
-            features,
-            all_results,
-            args.n_best_size,
-            args.max_answer_length,
-            args.do_lower_case,
-            output_prediction_file,
-            output_nbest_file,
-            output_null_log_odds_file,
-            args.verbose_logging,
-            args.version_2_with_negative,
-            args.null_score_diff_threshold,
-            tokenizer,
-        )
+        if args.output_all_logit:
+             predictions = compute_predictions_logits_and_output_all_logits(
+                 examples,
+                 features,
+                 all_results,
+                 args.n_best_size,
+                 args.max_answer_length,
+                 args.do_lower_case,
+                 output_prediction_file,
+                 output_nbest_file,
+                 output_all_logit_file,
+                 output_null_log_odds_file,
+                 args.verbose_logging,
+                 args.version_2_with_negative,
+                 args.null_score_diff_threshold,
+                 tokenizer,
+             )
+            
+        else:    
+             predictions = compute_predictions_logits(
+                 examples,
+                 features,
+                 all_results,
+                 args.n_best_size,
+                 args.max_answer_length,
+                 args.do_lower_case,
+                 output_prediction_file,
+                 output_nbest_file,
+                 output_null_log_odds_file,
+                 args.verbose_logging,
+                 args.version_2_with_negative,
+                 args.null_score_diff_threshold,
+                 tokenizer,
+             )
 
     # Compute the F1 and exact scores.
     results = squad_evaluate(examples, predictions)
@@ -736,6 +757,9 @@ def main():
     )
     parser.add_argument(
         "--overwrite_cache", action="store_true", help="Overwrite the cached training and evaluation sets"
+    )
+    parser.add_argument(
+        "--output_all_logit", action="store_true", help="output the logit score of each token in a file"
     )
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 

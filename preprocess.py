@@ -182,10 +182,14 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
 
         #tokens = tokenizer.convert_ids_to_tokens(non_padded_ids)
         tokens = ["CLS"]+truncated_query + ["SEP"] + all_doc_tokens[len(spans) * doc_stride:min(paragraph_len + len(spans) * doc_stride,len(all_doc_tokens))] + ["SEP"]
+        
         token_to_orig_map = {}
+        token_to_all_tokens_map = {}
+
         for i in range(paragraph_len):
             index = len(truncated_query) + sequence_added_tokens + i if tokenizer.padding_side == "right" else i
             token_to_orig_map[index] = tok_to_orig_index[len(spans) * doc_stride + i]
+            token_to_all_tokens_map[index] = len(spans) * doc_stride + i
 
         encoded_dict["paragraph_len"] = paragraph_len
         encoded_dict["tokens"] = tokens
@@ -194,6 +198,7 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
         encoded_dict["token_is_max_context"] = {}
         encoded_dict["start"] = len(spans) * doc_stride
         encoded_dict["length"] = paragraph_len
+        encoded_dict["token_to_all_tokens_map"] = token_to_all_tokens_map
 
         spans.append(encoded_dict)
 
@@ -271,6 +276,7 @@ def lic2020_convert_example_to_features(example, max_seq_length, doc_stride, max
                 start_position=start_position,
                 end_position=end_position,
                 is_impossible=span_is_impossible,
+                token_to_all_tokens_map=span["token_to_all_tokens_map"],
             )
         )
     return features
@@ -706,6 +712,7 @@ class SquadFeatures(object):
         start_position,
         end_position,
         is_impossible,
+        token_to_all_tokens_map,
     ):
         self.input_ids = input_ids
         self.attention_mask = attention_mask
@@ -724,7 +731,8 @@ class SquadFeatures(object):
         self.end_position = end_position
         self.is_impossible = is_impossible
 
-
+        self.token_to_all_tokens_map = token_to_all_tokens_map
+        
 class SquadResult(object):
     """
     Constructs a SquadResult which can be used to evaluate a model's output on the SQuAD dataset.
