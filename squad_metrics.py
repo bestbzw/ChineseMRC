@@ -442,7 +442,7 @@ def compute_predictions_logits_and_output_all_logits(
 
             for index,logit in enumerate(result.end_logits): 
                 if feature.token_is_max_context.get(index, False):
-                    all_end_logit[feature.token_to_all_tokens_map[index]] = (feature.token_to_orig_map[index],feature.tokens[index],logit)
+                    all_end_logit[feature.token_to_all_tokens_map[index]] = logit
             
             for start_index in start_indexes:
                 for end_index in end_indexes:
