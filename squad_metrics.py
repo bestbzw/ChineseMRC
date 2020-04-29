@@ -585,7 +585,7 @@ def compute_predictions_logits_and_output_all_logits(
                 }
 
     with open(output_prediction_file, "w") as writer:
-        writer.write(json.dumps(all_predictions, indent=4,ensure_ascii=False) + "\n")
+        writer.write(json.dumps(all_predictions, indent=4) + "\n")
 
     with open(output_nbest_file, "w") as writer:
         writer.write(json.dumps(all_nbest_json, indent=4) + "\n")
@@ -594,7 +594,7 @@ def compute_predictions_logits_and_output_all_logits(
         with open(output_null_log_odds_file, "w") as writer:
             writer.write(json.dumps(scores_diff_json, indent=4) + "\n")
     with open(output_all_logit_file,"w") as writer:
-        writer.write(json.dumps(all_logits_result, indent=4,ensure_ascii=False) + "\n")
+        writer.write(json.dumps(all_logits_result, indent=4) + "\n")
 
     return all_predictions
 
