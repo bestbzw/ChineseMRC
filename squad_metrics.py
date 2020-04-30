@@ -16,7 +16,8 @@ import logging
 import math
 import re
 import string
-
+import os
+import shutil
 from transformers.tokenization_bert import BasicTokenizer
 
 
@@ -394,6 +395,13 @@ def compute_predictions_logits_and_output_all_logits(
     logger.info("Writing nbest to: %s" % (output_nbest_file))
     logger.info("Writing logit to: %s" % (output_all_logit_file))
 
+    try:
+        os.mkdir(output_all_logit_file)
+    except:
+        shutil.rmtree(output_all_logit_file)
+        os.mkdir(output_all_logit_file)
+
+
     example_index_to_features = collections.defaultdict(list)
     for feature in all_features:
         example_index_to_features[feature.example_index].append(feature)
@@ -577,12 +585,13 @@ def compute_predictions_logits_and_output_all_logits(
                 all_predictions[example.qas_id] = best_non_null_entry.text
         all_nbest_json[example.qas_id] = nbest_json
 
-
-        all_logits_result[example.qas_id] = {
+        with open(os.path.join(output_all_logit_file,example.qas_id), "w") as writer:
+            logit_dict = {
                 "start_logits":all_start_logit,
                 "end_logits":all_end_logit,
                 "ori_tokens":example.doc_tokens,
                 }
+            writer.write(json.dumps(logit_dict, indent=4) + "\n")
 
     with open(output_prediction_file, "w") as writer:
         writer.write(json.dumps(all_predictions, indent=4) + "\n")
@@ -593,8 +602,6 @@ def compute_predictions_logits_and_output_all_logits(
     if version_2_with_negative:
         with open(output_null_log_odds_file, "w") as writer:
             writer.write(json.dumps(scores_diff_json, indent=4) + "\n")
-    with open(output_all_logit_file,"w") as writer:
-        writer.write(json.dumps(all_logits_result, indent=4) + "\n")
 
     return all_predictions
 
