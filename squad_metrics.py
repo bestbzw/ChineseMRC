@@ -1,4 +1,4 @@
-#!/data/anaconda3/bin/python
+#!/iata/anaconda3/bin/python
 # -*- coding: utf-8 -*-
 """ Very heavily inspired by the official evaluation script for SQuAD version 2.0 which was
 modified by XLNet authors to update `find_best_threshold` scripts for SQuAD V2.0
@@ -445,7 +445,7 @@ def compute_predictions_logits_and_output_all_logits(
             for index,logit in enumerate(result.end_logits): 
                 if feature.token_is_max_context.get(index, False):
                     all_end_logit[feature.token_to_all_tokens_map[index]] = logit
-            
+
             for start_index in start_indexes:
                 for end_index in end_indexes:
                     # We could hypothetically create invalid predictions, e.g., predict
@@ -579,11 +579,17 @@ def compute_predictions_logits_and_output_all_logits(
                 all_predictions[example.qas_id] = best_non_null_entry.text
         all_nbest_json[example.qas_id] = nbest_json
 
+        all_start_logit_list = [all_start_logit[i][2] for i in range(len(all_start_logit))]
+        all_token_list = [all_start_logit[i][1] for i in range(len(all_start_logit))]
+        all_span_id_list = [all_start_logit[i][0] for i in range(len(all_start_logit))]
+        all_end_logit_list = [all_end_logit[i] for i in range(len(all_start_logit))]
         logit_dict = {
                 "id":example.qas_id,
-                "start_logits":all_start_logit,
-                "end_logits":all_end_logit,
+                "start_logits":all_start_logit_list,
+                "end_logits":all_end_logit_list,
                 "ori_tokens":example.doc_tokens,
+                "tokens": " ".join(all_token_list),
+                "span_id": all_span_id_list,
                 }
         writer.write(json.dumps(logit_dict) + "\n")
 
