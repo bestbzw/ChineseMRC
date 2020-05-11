@@ -407,12 +407,12 @@ def evaluate(args, model, tokenizer, prefix=""):
     logger.info("  Evaluation done in total %f secs (%f sec per example)", evalTime, evalTime / len(dataset))
 
     # Compute predictions
-    output_prediction_file = os.path.join(args.output_dir, "predictions_{}.json".format(prefix))
-    output_nbest_file = os.path.join(args.output_dir, "nbest_predictions_{}.json".format(prefix))
-    output_all_logit_file = os.path.join(args.output_dir, "logit_predictions_{}".format(prefix))
+    output_prediction_file = os.path.join(args.output_result_dir, "predictions_{}.json".format(prefix))
+    output_nbest_file = os.path.join(args.output_result_dir, "nbest_predictions_{}.json".format(prefix))
+    output_all_logit_file = os.path.join(args.output_result_dir, "logit_predictions_{}.json".format(prefix))
 
     if args.version_2_with_negative:
-        output_null_log_odds_file = os.path.join(args.output_dir, "null_odds_{}.json".format(prefix))
+        output_null_log_odds_file = os.path.join(args.output_result_dir, "null_odds_{}.json".format(prefix))
     else:
         output_null_log_odds_file = None
 
@@ -605,7 +605,14 @@ def main():
         default=None,
         type=str,
         required=True,
-        help="The output directory where the model checkpoints and predictions will be written.",
+        help="The output directory where the model checkpoints will be written.",
+    )
+    parser.add_argument(
+        "--output_result_dir",
+        default=None,
+        type=str,
+        required=True,
+        help="The output directory where the model predictions will be written.",
     )
 
     # Other parameters
