@@ -68,10 +68,15 @@ parser.add_argument(
 parser.add_argument("--threads", type=int, default=1, help="multiple threads for converting example to features")
 
 args = parser.parse_args()
-cmd_base = "python run.py --data_dir {} --model_name_or_path {} --output_dir {} --model_type {} --predict_file {} --do_eval --overwrite_output_dir --max_seq_length 256 --per_gpu_eval_batch_size {} --n_best_size {} --split_doc --warmup_proportion 0.1 --seed 12345 --weight_decay 0.01 --adam_epsilon 1e-6 --do_lower_case --gradient_accumulation_steps 16 --threads {} --model_name {} --output_all_logit --max_answer_length {}  --output_result_dir {}"
+code_dir =  os.getcwd()
+code_path = os.path.join(code_dir,"run.py")
+
+cmd_base = "python {} --data_dir {} --model_name_or_path {} --output_dir {} --model_type {} --predict_file {} --do_eval --overwrite_output_dir --max_seq_length 256 --per_gpu_eval_batch_size {} --n_best_size {} --split_doc --warmup_proportion 0.1 --seed 12345 --weight_decay 0.01 --adam_epsilon 1e-6 --do_lower_case --gradient_accumulation_steps 16 --threads {} --model_name {} --output_all_logit --max_answer_length {}  --output_result_dir {}"
+
 
 for path in args.model_name_or_path:
-    cmd = cmd_base.format(args.data_dir, path, args.output_dir, args.model_type, args.predict_file,
+    cmd = cmd_base.format( code_path,
+                args.data_dir, path, args.output_dir, args.model_type, args.predict_file,
                 args.per_gpu_eval_batch_size, args.n_best_size, args.threads, args.model_name, args.max_answer_length, 
                 path)
     #print (cmd)
